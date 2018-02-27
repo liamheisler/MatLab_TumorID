@@ -33,6 +33,8 @@ if (imsize(1) < max)
     im = imresize(im, (max/imsize(1))); 
 end
 
+t = 1;
+
 %Show original image, will be used to compare to final later
 figure('Name', 'Original image')
 imshow(im)
@@ -43,6 +45,7 @@ gray = rgb2gray(im);
 imbr_reduce = imadjust(gray);
 redFact = 0.35;
 imbr_reduce = imbr_reduce * redFact;
+pause(t); figure, imshow(imbr_reduce)
 
 %Calculate brightness level [0,1]
 imbr_redcopy = imbr_reduce; 
@@ -50,6 +53,7 @@ imbr_redcopy = mat2gray(imbr_redcopy);
 lvl = multithresh(imbr_redcopy, 2);
 level = lvl(2);
 binary = im2bw(imbr_redcopy, level); 
+pause(t); figure, imshow(binary)
 
 %Gather struct data about sections of the image. This info
 %will be used for shape identifcation. 
@@ -66,15 +70,16 @@ circularityA = (perim.^2)./(4*pi*area); maxCirc = 1.5;
 circularityB = (4*pi*area)./(perim.^2); minCirc = 0.7;
 idx = find(circularityB > minCirc);
 BW2 = ismember(labelmatrix(cc), idx);
+pause(t); figure, imshow(BW2)
 
 %Filter out small pieces and remove any residual border
 p = 3500;
 bim = bwareaopen(BW2, p);
-brem = imclearborder(bim); 
+brem = imclearborder(bim);
+pause(t); figure, imshow(brem)
 
 %Concatenate ("overlay") isolated tumor over the reduced
 %brightness original image.
-figure('Name', 'Final, overlayed')
 final = imbr_reduce;
 final(:,:,1) = double(final(:,:,1)) + (256 * brem);
-imshow(final)
+pause(t); figure('Name', 'Final, overlayed'), imshow(final)
